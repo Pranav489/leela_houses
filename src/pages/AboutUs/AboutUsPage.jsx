@@ -1,12 +1,55 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { FaSwimmingPool, FaHiking, FaUtensils, FaTree } from "react-icons/fa";
-
+import axiosInstance from '../../services/api';
 const AboutUsPage = () => {
+  const [aboutData, setAboutData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axiosInstance.get("/about-us");
+        setAboutData(response.data.data);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-yellow-50">
+        <div className="text-orange-800 text-xl">Loading...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-yellow-50">
+        <div className="text-red-600 text-xl">Error: {error}</div>
+      </div>
+    );
+  }
+
+  if (!aboutData) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-yellow-50">
+        <div className="text-orange-800 text-xl">No data available</div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-yellow-50 pt-40 min-h-screen">
       {/* Hero Section */}
-      <div className="relative h-96 bg-[url('https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80')] bg-cover bg-center">
+      <div className="relative h-96  bg-cover bg-center">
         <div className="absolute inset-0 bg-orange-800 bg-opacity-60 flex items-center justify-center">
           <div className="text-center px-4">
             <motion.h1
@@ -34,9 +77,9 @@ const AboutUsPage = () => {
         <div className="flex flex-col md:flex-row items-center gap-12">
           <div className="md:w-1/2">
             <motion.img
-              src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
+              src={aboutData.our_story.image_url || "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"}
               alt="Leela Farmhouse"
-              className="rounded-lg shadow-xl"
+              className="rounded-lg shadow-xl w-full h-auto"
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
@@ -53,29 +96,14 @@ const AboutUsPage = () => {
             >
               Our Story
             </motion.h2>
-            <motion.p
-              className="text-gray-700 mb-4"
+            <motion.div
+              className="text-gray-700"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               transition={{ delay: 0.4, duration: 0.8 }}
               viewport={{ once: true }}
-            >
-              Founded in 2010, Leela Farmhouse began as a small family retreat
-              that we decided to share with others seeking peace away from city
-              life. What started as a simple farm stay has now blossomed into a
-              beloved eco-resort.
-            </motion.p>
-            <motion.p
-              className="text-gray-700"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ delay: 0.6, duration: 0.8 }}
-              viewport={{ once: true }}
-            >
-              We're committed to sustainable tourism and preserving the natural
-              beauty of our surroundings while providing comfortable
-              accommodations and authentic rural experiences.
-            </motion.p>
+              dangerouslySetInnerHTML={{ __html: aboutData.our_story.content }}
+            />
           </div>
         </div>
       </section>
@@ -94,45 +122,34 @@ const AboutUsPage = () => {
           </motion.h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              {
-                icon: (
-                  <FaSwimmingPool className="text-4xl text-orange-600 mb-4" />
-                ),
-                title: "Swimming Pool",
-                desc: "Refresh in our chemical-free natural swimming pool",
-              },
-              {
-                icon: <FaHiking className="text-4xl text-orange-600 mb-4" />,
-                title: "Nature Trails",
-                desc: "Explore scenic hiking paths through untouched wilderness",
-              },
-              {
-                icon: <FaUtensils className="text-4xl text-orange-600 mb-4" />,
-                title: "Farm-to-Table",
-                desc: "Enjoy meals prepared with organic ingredients from our farm",
-              },
-              {
-                icon: <FaTree className="text-4xl text-orange-600 mb-4" />,
-                title: "Eco-Friendly",
-                desc: "Sustainable practices that protect our environment",
-              },
-            ].map((feature, index) => (
-              <motion.div
-                key={index}
-                className="bg-white p-6 rounded-lg shadow-md text-center"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.6 }}
-                viewport={{ once: true }}
-              >
-                {feature.icon}
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-600">{feature.desc}</p>
-              </motion.div>
-            ))}
+            {aboutData.features.map((feature, index) => {
+              // Map icon names to actual components
+              const iconMap = {
+                FaSwimmingPool: <FaSwimmingPool className="text-4xl text-orange-600 mb-4" />,
+                FaHiking: <FaHiking className="text-4xl text-orange-600 mb-4" />,
+                FaUtensils: <FaUtensils className="text-4xl text-orange-600 mb-4" />,
+                FaTree: <FaTree className="text-4xl text-orange-600 mb-4" />
+              };
+              
+              const IconComponent = iconMap[feature.icon] || iconMap.FaTree;
+
+              return (
+                <motion.div
+                  key={index}
+                  className="bg-white p-6 rounded-lg shadow-md text-center"
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1, duration: 0.6 }}
+                  viewport={{ once: true }}
+                >
+                  {IconComponent}
+                  <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                    {feature.title}
+                  </h3>
+                  <p className="text-gray-600">{feature.description}</p>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -150,26 +167,7 @@ const AboutUsPage = () => {
         </motion.h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[
-            {
-              name: "Rajesh Patil",
-              role: "Founder & Host",
-              bio: "With 20+ years in hospitality, Rajesh ensures every guest feels at home.",
-              img: "https://images.unsplash.com/photo-1562788869-4ed32648eb72?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-            },
-            {
-              name: "Sunita Patil",
-              role: "Head Chef",
-              bio: "Sunita's traditional recipes using local ingredients will delight your palate.",
-              img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-            },
-            {
-              name: "Amit Sharma",
-              role: "Activities Guide",
-              bio: "Amit's knowledge of local flora and fauna makes every trek educational.",
-              img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-            },
-          ].map((member, index) => (
+          {aboutData.team.map((member, index) => (
             <motion.div
               key={index}
               className="bg-white rounded-lg shadow-md overflow-hidden"
@@ -179,7 +177,7 @@ const AboutUsPage = () => {
               viewport={{ once: true }}
             >
               <img
-                src={member.img}
+                src={member.image_url || "https://via.placeholder.com/500x300?text=Team+Member"}
                 alt={member.name}
                 className="w-full h-64 object-cover"
               />
@@ -188,9 +186,9 @@ const AboutUsPage = () => {
                   {member.name}
                 </h3>
                 <p className="text-orange-600 font-medium mb-3">
-                  {member.role}
+                  {member.position}
                 </p>
-                <p className="text-gray-600">{member.bio}</p>
+                <p className="text-gray-600">{member.description}</p>
               </div>
             </motion.div>
           ))}
