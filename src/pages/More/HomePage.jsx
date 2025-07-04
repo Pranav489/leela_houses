@@ -1,92 +1,49 @@
 import React from "react";
+import { useEffect,useState } from "react";
 import { motion } from "framer-motion";
 import { FaSwimmingPool, FaHiking, FaUtensils, FaTree } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import axiosInstance from "../../services/api";
 
 const HomePage = () => {
-  const packages = [
-    {
-      name: "Plan A",
-      price: "₹1899",
-      per: "per head",
-      includes: [
-        "Night stay",
-        "Lunch & Dinner (Veg/Non-Veg Thali)",
-        "Hi Tea (Kanda Bhaji & Tea)",
-        "Breakfast",
-      ],
-    },
-    {
-      name: "Plan B",
-      price: "₹1200",
-      per: "per head",
-      includes: [
-        "Night stay",
-        "Breakfast",
-        "Hi Tea",
-        "Lunch & Dinner (Chargeable as per menu)",
-      ],
-    },
-    {
-      name: "One Day Return",
-      price: "₹950",
-      per: "per head",
-      includes: [
-        "Breakfast",
-        "Lunch (Veg/Non-Veg Thali)",
-        "Hi Tea (Kanda Bhaji & Tea)",
-      ],
-    },
-    {
-      name: "Couple Package",
-      price: "₹5000",
-      per: "per couple",
-      includes: [
-        "Night stay",
-        "Lunch & Dinner (Veg/Non-Veg Thali)",
-        "Hi Tea (Kanda Bhaji & Tea)",
-        "Breakfast",
-      ],
-    },
-  ];
+  const [services, setServices] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const diningOptions = [
-    {
-      type: "Veg Thali",
-      items: [
-        "Pithla or other bhaji of your choice",
-        "Vangyache Bharit or other bhaji",
-        "Mirchi Thecha",
-        "2 Bhakri or 2 Chapati",
-        "Varan Bhat",
-        "Papad, Loncha",
-        "Shengdana Chutney",
-        "Kanda, Limbu, Tomato",
-      ],
-    },
-    {
-      type: "Non-Veg Thali",
-      items: [
-        "Chicken Sukka",
-        "Chicken Rassa",
-        "Aalani Soup",
-        "Indrayani Bhat",
-        "2 Bhakri or 2 Chapati",
-        "Bail Aig",
-        "Dahi Kanda Koshimbir",
-        "Kanda, Limbu",
-      ],
-    },
-  ];
+  useEffect(() => {
+    const getServices = async () => {
+      try {
+        const response = await axiosInstance.get("/services");
+        setServices(response.data.data);
+      } catch (err) {
+        setError(err.message || 'Failed to load services data');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const bbqOptions = [
-    { item: "Chicken (per kg)", price: "₹1200 (24 pieces)" },
-    { item: "Mutton (per kg)", price: "₹1500 (22 pieces)" },
-    { item: "Paneer (per kg)", price: "₹830" },
-    { item: "Surmai Fish Fry (half kg)", price: "₹1200 (12-15 pieces)" },
-    { item: "Surmai Fish Fry (1 kg)", price: "₹2500 (24-25 pieces)" },
-    { item: "Bangda Fish Fry", price: "₹500 (6-7 pieces)" },
-  ];
+    getServices();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-red-500">{error}</div>
+      </div>
+    );
+  }
+
+  if (!services) {
+    return null;
+  }
 
   return (
     <div className="bg-yellow-50">
@@ -131,7 +88,7 @@ const HomePage = () => {
         <div className="flex flex-col md:flex-row items-center gap-12">
           <div className="md:w-1/2">
             <motion.img
-              src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
+              src={services.oasis.image}
               alt="Leela Farmhouse"
               className="rounded-lg shadow-xl"
               initial={{ opacity: 0, x: -50 }}
@@ -157,21 +114,7 @@ const HomePage = () => {
               transition={{ delay: 0.4, duration: 0.8 }}
               viewport={{ once: true }}
             >
-              Leela Farmhouse offers a perfect blend of rural charm and modern
-              comfort. Our property spans 5 acres of lush greenery, featuring
-              comfortable accommodations, a natural swimming pool, and organic
-              farming areas.
-            </motion.p>
-            <motion.p
-              className="text-gray-700 mb-6"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ delay: 0.6, duration: 0.8 }}
-              viewport={{ once: true }}
-            >
-              Located just 45 minutes from Pune, we provide an ideal getaway for
-              families, couples, and groups looking to escape the city's hustle
-              without traveling too far.
+              {services.oasis.text}
             </motion.p>
             <motion.div
               initial={{ opacity: 0 }}
@@ -204,7 +147,7 @@ const HomePage = () => {
           </motion.h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {packages.map((pkg, index) => (
+            {services.packages.map((pkg, index) => (
               <motion.div
                 key={index}
                 className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
@@ -218,15 +161,15 @@ const HomePage = () => {
                 </h3>
                 <div className="text-center mb-4">
                   <span className="text-3xl font-bold text-gray-800">
-                    {pkg.price}
+                    ₹{pkg.price}
                   </span>
-                  <span className="text-sm text-gray-600 ml-1">{pkg.per}</span>
+                  <span className="text-sm text-gray-600 ml-1">per {pkg.per}</span>
                 </div>
                 <ul className="space-y-2 mb-6">
-                  {pkg.includes.map((item, i) => (
+                  {pkg.includes.map((include, i) => (
                     <li key={i} className="flex items-start">
                       <span className="text-orange-500 mr-2">✓</span>
-                      <span className="text-gray-700">{item}</span>
+                      <span className="text-gray-700">{include.item}</span>
                     </li>
                   ))}
                 </ul>
@@ -255,7 +198,7 @@ const HomePage = () => {
         </motion.h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-          {diningOptions.map((option, index) => (
+          {services.dining_options.map((option, index) => (
             <motion.div
               key={index}
               className="bg-white p-6 rounded-lg shadow-md"
@@ -271,7 +214,7 @@ const HomePage = () => {
                 {option.items.map((item, i) => (
                   <li key={i} className="flex items-start">
                     <span className="text-orange-500 mr-2">•</span>
-                    <span className="text-gray-700">{item}</span>
+                    <span className="text-gray-700">{item.item}</span>
                   </li>
                 ))}
               </ul>
@@ -291,7 +234,7 @@ const HomePage = () => {
             Special BBQ Options
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {bbqOptions.map((item, index) => (
+            {services.bbq_options.map((item, index) => (
               <div key={index} className="bg-white p-4 rounded-md shadow-sm">
                 <h4 className="font-medium text-gray-800">{item.item}</h4>
                 <p className="text-orange-600 font-medium">{item.price}</p>
