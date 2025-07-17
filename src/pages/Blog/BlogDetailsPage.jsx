@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   FaFacebook,
@@ -10,79 +10,100 @@ import {
   FaUser,
   FaArrowLeft,
 } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import axiosInstance from "../../services/api"; // Adjust path as needed
 
 const BlogDetailsPage = () => {
-  const blogPost = {
-    id: 1,
-    title: "Top 5 Nature Activities Near Leela Farmhouse",
-    content: `
-      <p>When you stay at Leela Farmhouse, you're surrounded by nature's beauty. Here are our top recommendations for outdoor activities within a short distance from our property:</p>
+  const { slug } = useParams();
+  const navigate = useNavigate();
+  const [blogPost, setBlogPost] = useState(null);
+  const [recentPosts, setRecentPosts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+  const fetchData = async () => {
+    try {
+      setLoading(true);
       
-      <h3>1. Morning Bird Watching</h3>
-      <p>Our location is a haven for bird enthusiasts. The nearby forest area is home to over 50 species of birds. Join our guided bird watching tours at dawn when the birds are most active.</p>
+      // Fetch the main blog post and related posts
+      const postResponse = await axiosInstance.get(`/blog/${slug}`);
+      setBlogPost(postResponse.data.post);
       
-      <h3>2. Sunset Hill Trek</h3>
-      <p>A moderate 2-hour trek leads you to a breathtaking viewpoint perfect for sunset photography. The trail passes through scenic landscapes and offers panoramic views of the valley.</p>
+      // Fetch recent posts from the dedicated endpoint
+      const recentResponse = await axiosInstance.get('/blog/recent');
+      setRecentPosts(recentResponse.data);
       
-      <h3>3. Organic Farm Tour</h3>
-      <p>Visit our 5-acre organic farm where we grow seasonal produce. Learn about sustainable farming practices and even participate in harvesting (seasonal).</p>
+      // Fetch categories
+      const categoriesResponse = await axiosInstance.get('/categories');
+      setCategories(categoriesResponse.data);
       
-      <h3>4. Riverside Picnic</h3>
-      <p>We'll pack you a delicious lunch basket for a picnic by the pristine river just 15 minutes from the farmhouse. Perfect for families and couples.</p>
-      
-      <h3>5. Night Sky Observation</h3>
-      <p>With minimal light pollution, our location offers spectacular stargazing opportunities. We provide telescopes and astronomy guides during clear nights.</p>
-      
-      <p>All these activities can be arranged through our front desk. Some require advance booking, especially during peak seasons.</p>
-    `,
-    date: "2023-06-15",
-    author: "Amit Sharma",
-    authorRole: "Activities Guide",
-    authorAvatar:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-    image:
-      "https://images.unsplash.com/photo-1505576399279-565b52d4ac71?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    category: "Activities",
+    } catch (err) {
+      setError(err.message);
+      if (err.response?.status === 404) {
+        navigate('/404', { replace: true });
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const recentPosts = [
-    {
-      id: 2,
-      title: "Farm-to-Table: Our Organic Food Philosophy",
-      date: "2023-05-22",
-      image:
-        "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-    },
-    {
-      id: 3,
-      title: "Sustainable Tourism: Our Eco-Friendly Practices",
-      date: "2023-04-10",
-      image:
-        "https://images.unsplash.com/photo-1466637574441-749b8f19452f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-    },
-    {
-      id: 4,
-      title: "Monsoon Magic at Leela Farmhouse",
-      date: "2023-03-28",
-      image:
-        "https://images.unsplash.com/photo-1433086966358-54859d0ed716?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-    },
-  ];
+  fetchData();
+}, [slug, navigate]);
 
-  const categories = [
-    "Activities",
-    "Dining",
-    "Sustainability",
-    "Seasons",
-    "Family",
-    "Wellness",
-  ];
+  if (loading) {
+    return (
+      <div className="bg-yellow-50 min-h-screen pt-40 flex justify-center items-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-600 mx-auto"></div>
+          <p className="mt-4 text-lg text-gray-700">Loading post...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-yellow-50 min-h-screen pt-40 flex justify-center items-center">
+        <div className="text-center p-6 bg-red-100 rounded-lg max-w-md">
+          <h3 className="text-xl font-bold text-red-700 mb-2">Error loading post</h3>
+          <p className="text-red-600">{error}</p>
+          <Link
+            to="/blog"
+            className="mt-4 inline-block px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700"
+          >
+            Back to Blog
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (!blogPost) {
+    return (
+      <div className="bg-yellow-50 min-h-screen pt-40 flex justify-center items-center">
+        <div className="text-center p-6 bg-yellow-100 rounded-lg max-w-md">
+          <h3 className="text-xl font-bold text-yellow-800 mb-2">Post not found</h3>
+          <p className="text-yellow-700 mb-4">The requested blog post doesn't exist.</p>
+          <Link
+            to="/blog"
+            className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700"
+          >
+            Back to Blog
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-yellow-50 min-h-screen pt-40">
       {/* Hero Section */}
-      <div className="relative h-64 bg-[url('https://images.unsplash.com/photo-1505576399279-565b52d4ac71?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80')] bg-cover bg-center">
+      <div
+        className="relative h-64 bg-cover bg-center"
+        style={{ backgroundImage: `url(${blogPost.image_url || 'https://images.unsplash.com/photo-1505576399279-565b52d4ac71?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'})` }}
+      >
         <div className="absolute inset-0 bg-orange-800 bg-opacity-60 flex items-center justify-center">
           <div className="text-center px-4">
             <motion.h1
@@ -116,9 +137,12 @@ const BlogDetailsPage = () => {
           >
             <article className="bg-white rounded-lg shadow-md overflow-hidden">
               <img
-                src={blogPost.image}
+                src={blogPost.image_url || 'https://images.unsplash.com/photo-1505576399279-565b52d4ac71?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'}
                 alt={blogPost.title}
                 className="w-full h-96 object-cover"
+                onError={(e) => {
+                  e.target.src = 'https://images.unsplash.com/photo-1505576399279-565b52d4ac71?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80';
+                }}
               />
 
               <div className="p-8">
@@ -128,7 +152,7 @@ const BlogDetailsPage = () => {
                   </span>
                   <span className="text-sm text-gray-500 flex items-center">
                     <FaCalendarAlt className="mr-1" />
-                    {new Date(blogPost.date).toLocaleDateString("en-US", {
+                    {new Date(blogPost.published_date).toLocaleDateString("en-US", {
                       year: "numeric",
                       month: "long",
                       day: "numeric",
@@ -139,16 +163,19 @@ const BlogDetailsPage = () => {
                 {/* Author Info */}
                 <div className="flex items-center gap-4 mb-8">
                   <img
-                    src={blogPost.authorAvatar}
-                    alt={blogPost.author}
+                    src={blogPost.author_avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'}
+                    alt={blogPost.author_name}
                     className="w-12 h-12 rounded-full object-cover"
+                    onError={(e) => {
+                      e.target.src = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80';
+                    }}
                   />
                   <div>
                     <h4 className="font-medium text-gray-800">
-                      {blogPost.author}
+                      {blogPost.author_name}
                     </h4>
                     <p className="text-sm text-gray-500">
-                      {blogPost.authorRole}
+                      {blogPost.author_role}
                     </p>
                   </div>
                 </div>
@@ -166,31 +193,41 @@ const BlogDetailsPage = () => {
                   </h4>
                   <div className="flex gap-4">
                     <a
-                      href="#"
+                      href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition-colors"
                     >
                       <FaFacebook />
                     </a>
                     <a
-                      href="#"
+                      href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(blogPost.title)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="bg-blue-400 hover:bg-blue-500 text-white p-3 rounded-full transition-colors"
                     >
                       <FaTwitter />
                     </a>
                     <a
-                      href="#"
+                      href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent(blogPost.title)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="bg-blue-700 hover:bg-blue-800 text-white p-3 rounded-full transition-colors"
                     >
                       <FaLinkedin />
                     </a>
                     <a
-                      href="#"
+                      href={`https://pinterest.com/pin/create/button/?url=${encodeURIComponent(window.location.href)}&media=${encodeURIComponent(blogPost.image_url)}&description=${encodeURIComponent(blogPost.title)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="bg-red-600 hover:bg-red-700 text-white p-3 rounded-full transition-colors"
                     >
                       <FaPinterest />
                     </a>
                     <a
-                      href="#"
+                      href={`https://wa.me/?text=${encodeURIComponent(`${blogPost.title} - ${window.location.href}`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="bg-green-500 hover:bg-green-600 text-white p-3 rounded-full transition-colors"
                     >
                       <FaWhatsapp />
@@ -217,76 +254,81 @@ const BlogDetailsPage = () => {
                 </h3>
                 <div className="flex items-center gap-4">
                   <img
-                    src={blogPost.authorAvatar}
-                    alt={blogPost.author}
+                    src={blogPost.author_avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'}
+                    alt={blogPost.author_name}
                     className="w-16 h-16 rounded-full object-cover"
+                    onError={(e) => {
+                      e.target.src = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80';
+                    }}
                   />
                   <div>
                     <h4 className="font-medium text-gray-800">
-                      {blogPost.author}
+                      {blogPost.author_name}
                     </h4>
                     <p className="text-sm text-gray-600">
-                      {blogPost.authorRole}
+                      {blogPost.author_role}
                     </p>
                   </div>
                 </div>
                 <p className="mt-3 text-sm text-gray-600">
-                  Amit has been guiding nature activities at Leela Farmhouse for
-                  5 years. His deep knowledge of local flora and fauna makes
-                  every excursion educational and enjoyable.
+                  {blogPost.author_bio || `${blogPost.author_name} has been writing about ${blogPost.category.toLowerCase()} topics for several years.`}
                 </p>
               </div>
 
               {/* Recent Posts */}
+<div className="mb-8">
+  <h3 className="text-lg font-semibold text-gray-800 mb-4">
+    Recent Posts
+  </h3>
+  {recentPosts.length > 0 ? (
+    <ul className="space-y-3">
+      {recentPosts.map((post) => (
+        <li key={post.id}>
+          <Link
+            to={`/blog/${post.slug}`}
+            className="flex items-start gap-3 group"
+          >
+            <img
+              src={post.image_url || 'https://images.unsplash.com/photo-1497864149936-d3163f0c0f4b?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'}
+              alt={post.title}
+              className="w-16 h-16 object-cover rounded"
+              onError={(e) => {
+                e.target.src = 'https://images.unsplash.com/photo-1497864149936-d3163f0c0f4b?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80';
+              }}
+            />
+            <div>
+              <h4 className="text-sm font-medium text-gray-800 group-hover:text-orange-600 transition-colors">
+                {post.title}
+              </h4>
+              <p className="text-xs text-gray-500">
+                {new Date(post.published_date).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                })}
+              </p>
+            </div>
+          </Link>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p className="text-sm text-gray-500">No recent posts found</p>
+  )}
+</div>
+              {/* Categories Section */}
               <div className="mb-8">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Recent Posts
-                </h3>
-                <ul className="space-y-3">
-                  {recentPosts.map((post) => (
-                    <li key={post.id}>
-                      <Link
-                        to={`/blog/${post.id}`}
-                        className="flex items-start gap-3 group"
-                      >
-                        <img
-                          src={post.image}
-                          alt={post.title}
-                          className="w-16 h-16 object-cover rounded"
-                        />
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-800 group-hover:text-orange-600 transition-colors">
-                            {post.title}
-                          </h4>
-                          <p className="text-xs text-gray-500">
-                            {new Date(post.date).toLocaleDateString("en-US", {
-                              year: "numeric",
-                              month: "short",
-                              day: "numeric",
-                            })}
-                          </p>
-                        </div>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Categories */}
-              <div className="mb-8">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Categories
-                </h3>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Categories</h3>
                 <ul className="space-y-2">
-                  {categories.map((category, index) => (
-                    <li key={index}>
+                  {categories.map((category) => (
+                    <li key={category.slug}>
                       <Link
-                        to={`/blog/category/${category.toLowerCase()}`}
+                        to={`/blog/category/${category.slug}`}
                         className="flex items-center justify-between w-full text-left text-gray-600 hover:text-orange-600 transition-colors"
                       >
-                        <span>{category}</span>
+                        <span>{category.name}</span>
                         <span className="bg-gray-200 text-gray-600 text-xs px-2 py-1 rounded-full">
-                          {category === "Activities" ? "3" : "2"}
+                          {category.count}
                         </span>
                       </Link>
                     </li>
