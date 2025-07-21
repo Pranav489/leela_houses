@@ -28,6 +28,7 @@ const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [contactInfo, setContactInfo] = useState({
   email: "",
   phone: "",
+  phone1: "",
   whatsapp: "",
   address: "",
   socialLinks: {
@@ -49,7 +50,8 @@ const [isMenuOpen, setIsMenuOpen] = useState(false);
         
         setContactInfo({
           email: data.email1 || "info@leelafarmhouse.com",
-          phone: data.mobile_number1 || "+918261079943",
+          phone: data.mobile_number1 || "+91 79727 09407",
+          phone1: data.mobile_number2 || "+91 82610 79943",
           whatsapp: data.whatsapp_number ? `https://wa.me/${data.whatsapp_number}` : "#",
           address: data.address_line1 || "Near Pune, Maharashtra",
           socialLinks: {
@@ -283,7 +285,7 @@ const [isMenuOpen, setIsMenuOpen] = useState(false);
             ))}
             {/* Call Now Button */}
             <a
-              href="tel:+918261079943"
+              href={`tel:${contactInfo.phone1}`}
               className="ml-4 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors"
             >
               <Phone className="h-4 w-4 mr-2" />
