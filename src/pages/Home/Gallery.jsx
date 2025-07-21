@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import axiosInstance from '../../services/api';
 
 const GallerySection = () => {
   const outdoorRef = useRef(null);
   const indoorRef = useRef(null);
+  const navigate = useNavigate();
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [outdoorImages, setOutdoorImages] = useState([]);
   const [farmhouseExperience, setFarmhouseExperience] = useState(null);
@@ -98,14 +100,44 @@ const GallerySection = () => {
   };
 
   if (loading) {
-    return (
-      <section className="bg-amber-50 py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto text-center py-20">
-          Loading gallery images...
-        </div>
-      </section>
-    );
-  }
+      if (loading) {
+        return (
+          <div className="h-[600px] md:h-[700px] flex items-center justify-center bg-gray-100">
+            <div className="text-center">
+              <motion.div
+                className="flex justify-center mb-6"
+                animate={{
+                  rotate: 360,
+                }}
+                transition={{
+                  duration: 2,
+                  ease: "linear",
+                  repeat: Infinity,
+                }}
+              >
+                <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full"></div>
+              </motion.div>
+              <motion.h2
+                className="text-2xl font-semibold text-gray-700"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                Loading...
+              </motion.h2>
+              <motion.p
+                className="text-gray-500 mt-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+              >
+                Preparing your experience
+              </motion.p>
+            </div>
+          </div>
+        );
+      }
+    }
 
   if (error) {
     return (
@@ -310,6 +342,7 @@ const GallerySection = () => {
                 viewport={{ once: true }}
               >
                 <motion.button
+                  onClick={() => navigate('/contact')}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="bg-white text-amber-600 hover:bg-gray-100 px-6 py-3 rounded-lg font-semibold shadow-md transition-all"
@@ -359,7 +392,7 @@ const GallerySection = () => {
             </div>
           </div>
         </div>
-        ;
+        
 
       </div>
     </section>

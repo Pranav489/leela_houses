@@ -1,5 +1,6 @@
 import React from "react";
 import { useEffect,useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaSwimmingPool, FaHiking, FaUtensils, FaTree } from "react-icons/fa";
 import { Link } from "react-router-dom";
@@ -26,12 +27,42 @@ const HomePage = () => {
   }, []);
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
-      </div>
-    );
-  }
+        return (
+          <div className="h-[600px] md:h-[700px] flex items-center justify-center bg-gray-100">
+            <div className="text-center">
+              <motion.div
+                className="flex justify-center mb-6"
+                animate={{
+                  rotate: 360,
+                }}
+                transition={{
+                  duration: 2,
+                  ease: "linear",
+                  repeat: Infinity,
+                }}
+              >
+                <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full"></div>
+              </motion.div>
+              <motion.h2
+                className="text-2xl font-semibold text-gray-700"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                Loading...
+              </motion.h2>
+              <motion.p
+                className="text-gray-500 mt-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+              >
+                Preparing your experience
+              </motion.p>
+            </div>
+          </div>
+        );
+    }
 
   if (error) {
     return (
@@ -73,7 +104,7 @@ const HomePage = () => {
               transition={{ delay: 0.6, duration: 0.8 }}
             >
               <Link
-                to="/book-now"
+                to="/contact"
                 className="inline-block bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-8 rounded-full text-lg transition-colors"
               >
                 Book Your Stay
@@ -134,7 +165,7 @@ const HomePage = () => {
       </section>
 
       {/* Packages Section */}
-      <section className="py-16 bg-orange-50">
+      <section id="packages" className="py-16 bg-orange-50">
         <div className="max-w-6xl mx-auto px-4">
           <motion.h2
             className="text-3xl font-bold text-center text-orange-800 mb-12"
@@ -174,7 +205,7 @@ const HomePage = () => {
                   ))}
                 </ul>
                 <Link
-                  to="/book-now"
+                  to="/contact"
                   className="block w-full text-center bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
                 >
                   Book Now
@@ -267,7 +298,7 @@ const HomePage = () => {
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Link
-                to="/book-now"
+                to="/contact"
                 className="bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-8 rounded-full transition-colors"
               >
                 Book Now

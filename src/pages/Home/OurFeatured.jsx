@@ -70,8 +70,44 @@ const OurFeatured = () => {
   const closeVideo = () => setShowVideo(false);
 
   if (loading) {
-    return <div className="py-16 md:py-24 bg-amber-50 text-center">Loading...</div>;
-  }
+      if (loading) {
+        return (
+          <div className="h-[600px] md:h-[700px] flex items-center justify-center bg-gray-100">
+            <div className="text-center">
+              <motion.div
+                className="flex justify-center mb-6"
+                animate={{
+                  rotate: 360,
+                }}
+                transition={{
+                  duration: 2,
+                  ease: "linear",
+                  repeat: Infinity,
+                }}
+              >
+                <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full"></div>
+              </motion.div>
+              <motion.h2
+                className="text-2xl font-semibold text-gray-700"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                Loading...
+              </motion.h2>
+              <motion.p
+                className="text-gray-500 mt-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+              >
+                Preparing your experience
+              </motion.p>
+            </div>
+          </div>
+        );
+      }
+    }
 
   if (error) {
     return <div className="py-16 md:py-24 bg-amber-50 text-center text-red-500">Error: {error}</div>;

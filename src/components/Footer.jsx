@@ -1,4 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import axiosInstance from "../services/api";
+import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import {
   FaFacebookF,
   FaTwitter,
@@ -13,23 +16,174 @@ import { motion } from "framer-motion";
 import { BsCalendarCheck } from "react-icons/bs";
 
 const Footer = () => {
-  const socialIcons = [
-    { icon: FaFacebookF, label: "Facebook", color: "text-blue-600" },
-    { icon: FaInstagram, label: "Instagram", color: "text-pink-600" },
-    { icon: FaTwitter, label: "Twitter", color: "text-blue-400" },
-    { icon: FaYoutube, label: "YouTube", color: "text-red-600" },
-    // { icon: FaTripadvisor, label: "TripAdvisor", color: "text-green-600" },
-    // { icon: FaWhatsapp, label: "WhatsApp", color: "text-green-500" },
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [contactInfo, setContactInfo] = useState({
+    tel_number: "",
+    mobile_number1: "",
+    whatsapp_number: "",
+    email1: "",
+    address_line1: "",
+    address_line2: "",
+    address_line3: "",
+    address_line4: "",
+    address_line5: "",
+    open_hours: "",
+    social_link_1: "", // Facebook
+    social_link_2: "", // Twitter
+    social_link_3: "", // YouTube
+    social_link_4: "", // Instagram
+    social_link_5: "", // WhatsApp
+  });
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Links configuration - now with explicit section IDs
+  const quickLinks = [
+    { name: "Home", target: "/", type: "page" },
+    { name: "About Us", target: "/about", type: "page" },
+    { name: "Packages", target: "/services", section: "packages", type: "section" },
+    { name: "Gallery", target: "/gallery", type: "page" },
+    { name: "Amenities", target: "/gallery", section: "amenities", type: "section" },
+    { name: "Testimonials", target: "/", section: "testimonials", type: "section" },
   ];
 
-  const quickLinks = [
-    { name: "Home", link: "#home" },
-    { name: "About Us", link: "#about" },
-    { name: "Packages", link: "#packages" },
-    { name: "Gallery", link: "#gallery" },
-    { name: "Amenities", link: "#amenities" },
-    { name: "Testimonials", link: "#testimonials" },
+  // Handle both page navigation and section scrolling
+  const handleNavigation = (e, target, type, section = null) => {
+    e.preventDefault();
+
+    if (type === "page") {
+      // Regular page navigation
+      navigate(target);
+    } else {
+      // Section navigation - always navigate first then scroll
+      navigate(target, {
+        state: { scrollTo: section },
+        // Only replace if we're already on the target page to maintain history
+        replace: location.pathname === target
+      });
+    }
+  };
+
+  // Handle scroll after page navigation or on initial render
+  useEffect(() => {
+    const handleScroll = () => {
+      // Check for hash in URL first
+      if (location.hash) {
+        const id = location.hash.replace("#", "");
+        const element = document.getElementById(id);
+        if (element) {
+          setTimeout(() => {
+            element.scrollIntoView({ behavior: "smooth", block: "start" });
+          }, 100);
+        }
+      }
+      // Then check for state-based scrolling
+      else if (location.state?.scrollTo) {
+        const element = document.getElementById(location.state.scrollTo);
+        if (element) {
+          setTimeout(() => {
+            element.scrollIntoView({ behavior: "smooth", block: "start" });
+            // Clear the state to prevent re-scrolling
+            navigate(location.pathname, { replace: true, state: {} });
+          }, 100);
+        }
+      }
+    };
+
+    // Small delay to ensure DOM is ready
+    const timer = setTimeout(handleScroll, 50);
+    return () => clearTimeout(timer);
+  }, [location, navigate]);
+
+  // Define social icons with dynamic URLs
+  const socialIcons = [
+    {
+      icon: FaFacebookF,
+      label: "Facebook",
+      color: "text-blue-600",
+      url: contactInfo.social_link_1
+    },
+    {
+      icon: FaInstagram,
+      label: "Instagram",
+      color: "text-pink-600",
+      url: contactInfo.social_link_4
+    },
+    {
+      icon: FaTwitter,
+      label: "Twitter",
+      color: "text-blue-400",
+      url: contactInfo.social_link_2
+    },
+    {
+      icon: FaYoutube,
+      label: "YouTube",
+      color: "text-red-600",
+      url: contactInfo.social_link_3
+    },
   ];
+
+  useEffect(() => {
+    const fetchContactInfo = async () => {
+      try {
+        const response = await axiosInstance.get('/contact');
+        setContactInfo(response.data);
+      } catch (err) {
+        console.error("Error fetching contact info:", err);
+        setError("Failed to load contact information");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchContactInfo();
+  }, []);
+
+  if (loading) {
+      if (loading) {
+        return (
+          <div className="h-[600px] md:h-[700px] flex items-center justify-center bg-gray-100">
+            <div className="text-center">
+              <motion.div
+                className="flex justify-center mb-6"
+                animate={{
+                  rotate: 360,
+                }}
+                transition={{
+                  duration: 2,
+                  ease: "linear",
+                  repeat: Infinity,
+                }}
+              >
+                <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full"></div>
+              </motion.div>
+              <motion.h2
+                className="text-2xl font-semibold text-gray-700"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                Loading...
+              </motion.h2>
+              <motion.p
+                className="text-gray-500 mt-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+              >
+                Preparing your experience
+              </motion.p>
+            </div>
+          </div>
+        );
+      }
+    }
+
+  if (error) {
+    return <div className="text-center py-8 text-red-500">{error}</div>;
+  }
 
   return (
     <motion.footer
@@ -54,31 +208,33 @@ const Footer = () => {
             memorable experiences.
           </p>
           <div className="flex gap-4 mt-6">
-            {socialIcons.map(({ icon: Icon, label, color }, index) => (
-              <motion.a
-                key={index}
-                href="#"
-                whileHover={{ scale: 1.2, y: -5 }}
-                whileTap={{ scale: 0.9 }}
-                transition={{ type: "spring", stiffness: 300 }}
-                title={label}
-                className={`cursor-pointer bg-white p-3 rounded-full shadow-sm hover:bg-amber-100 ${color}`}
-              >
-                <Icon size={18} />
-              </motion.a>
+            {socialIcons.map(({ icon: Icon, label, color, url }, index) => (
+              url && (
+                <motion.a
+                  key={index}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  whileHover={{ scale: 1.2, y: -5 }}
+                  whileTap={{ scale: 0.9 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                  title={label}
+                  className={`cursor-pointer bg-white p-3 rounded-full shadow-sm hover:bg-amber-100 ${color}`}
+                >
+                  <Icon size={18} />
+                </motion.a>
+              )
             ))}
           </div>
         </motion.div>
 
-        {/* Quick Links */}
+        {/* Quick Links Section */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <h3 className="text-xl font-semibold mb-4 text-amber-700">
-            Quick Links
-          </h3>
+          <h3 className="text-xl font-semibold mb-4 text-amber-700">Quick Links</h3>
           <ul className="space-y-2">
             {quickLinks.map((link, index) => (
               <motion.li
@@ -87,15 +243,18 @@ const Footer = () => {
                 transition={{ type: "spring", stiffness: 300 }}
               >
                 <a
-                  href={link.link}
+                  href={link.type === 'section' ? `${link.target}#${link.section}` : link.target}
+                  onClick={(e) => handleNavigation(e, link.target, link.type, link.section)}
                   className="text-gray-700 hover:text-amber-600 transition-colors"
                 >
                   {link.name}
                 </a>
               </motion.li>
             ))}
+
           </ul>
         </motion.div>
+
 
         {/* Contact Info */}
         <motion.div
@@ -110,41 +269,80 @@ const Footer = () => {
             <li className="flex items-start gap-3">
               <IoLocationOutline size={20} className="text-amber-600 mt-1" />
               <span>
-                Near Pune, Maharashtra
+                {contactInfo.address_line1 || "Near Pune, Maharashtra"}
+                {contactInfo.address_line2 && (
+                  <>
+                    <br />
+                    {contactInfo.address_line2}
+                  </>
+                )}
+                {contactInfo.address_line3 && (
+                  <>
+                    <br />
+                    {contactInfo.address_line3}
+                  </>
+                )}
+                {contactInfo.address_line4 && (
+                  <>
+                    <br />
+                    {contactInfo.address_line4}
+                  </>
+                )}
+                {contactInfo.address_line5 && (
+                  <>
+                    <br />
+                    {contactInfo.address_line5}
+                  </>
+                )}
                 <br />
                 <span className="text-xs text-gray-500">
                   (Exact location provided upon booking)
                 </span>
               </span>
             </li>
+
             <li className="flex items-center gap-3">
               <IoCallOutline size={20} className="text-amber-600" />
               <div>
-                <a href="tel:+918261079943" className="hover:text-amber-600">
-                  +91 8261079943
-                </a>
-                <div className="flex gap-2 mt-1">
+                {contactInfo.mobile_number1 && (
                   <a
-                    href="https://wa.me/918261079943"
-                    className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded flex items-center gap-1"
+                    href={`tel:${contactInfo.mobile_number1}`}
+                    className="hover:text-amber-600"
                   >
-                    <FaWhatsapp size={12} /> WhatsApp
+                    {contactInfo.mobile_number1}
                   </a>
-                </div>
+                )}
+                {contactInfo.whatsapp_number && (
+                  <div className="flex gap-2 mt-1">
+                    <a
+                      href={contactInfo.social_link_5}
+                      className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded flex items-center gap-1"
+                    >
+                      <FaWhatsapp size={12} /> WhatsApp
+                    </a>
+                  </div>
+                )}
               </div>
             </li>
+
             <li className="flex items-center gap-3">
               <MdOutlineEmail size={20} className="text-amber-600" />
-              <a
-                href="mailto:info@leelafarmhouse.com"
-                className="hover:text-amber-600"
-              >
-                info@leelafarmhouse.com
-              </a>
+              {contactInfo.email1 && (
+                <a
+                  href={`mailto:${contactInfo.email1}`}
+                  className="hover:text-amber-600"
+                >
+                  {contactInfo.email1}
+                </a>
+              )}
             </li>
+
             <li className="flex items-center gap-3">
               <BsCalendarCheck size={20} className="text-amber-600" />
-              <span>Open 24/7 for bookings</span>
+              <span>
+                {contactInfo.open_hours || "Open 24/7"} for bookings
+              </span>
+
             </li>
           </ul>
         </motion.div>

@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import axiosInstance from "../../services/api";
 import { motion } from "framer-motion";
 import {
   FaPhone,
@@ -10,6 +11,129 @@ import {
 } from "react-icons/fa";
 
 const ContactUsPage = () => {
+  const [contactInfo, setContactInfo] = useState({
+    tel_number: "",
+    mobile_number1: "",
+    mobile_number2: "",
+    email1: "",
+    email2: "",
+    whatsapp_number: "",
+    address_line1: "",
+    address_line2: "",
+    address_line3: "",
+    address_line4: "",
+    address_line5: "",
+    social_link_1: "",
+    social_link_2: "",
+    social_link_3: "",
+    social_link_4: "",
+    social_link_5: "",
+    open_hours: "",
+  });
+
+  const [formData, setFormData] = useState({
+    full_name: "",
+    email: "",
+    phone_number: "",
+    subject: "",
+    message: "",
+  });
+
+  const [loading, setLoading] = useState(true);
+  const [submitStatus, setSubmitStatus] = useState(null);
+  const [submitError, setSubmitError] = useState("");
+
+  // Fetch contact information
+  useEffect(() => {
+    const fetchContactInfo = async () => {
+      try {
+        const response = await axiosInstance.get('/contact');
+        setContactInfo(response.data);
+      } catch (error) {
+        console.error("Error fetching contact info:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchContactInfo();
+  }, []);
+
+  // Handle form input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitStatus('sending');
+
+    try {
+      const response = await axiosInstance.post('/contactform', formData);
+      setSubmitStatus('success');
+      setFormData({
+        full_name: "",
+        email: "",
+        phone_number: "",
+        subject: "",
+        message: "",
+      });
+
+    } catch (error) {
+      console.error("Submission error:", error);
+      setSubmitStatus('error');
+      setSubmitError(
+        error.response?.data?.message ||
+        "Could not send your message. Please try again later."
+      );
+    }
+  };
+
+  if (loading) {
+      if (loading) {
+        return (
+          <div className="h-[600px] md:h-[700px] flex items-center justify-center bg-gray-100">
+            <div className="text-center">
+              <motion.div
+                className="flex justify-center mb-6"
+                animate={{
+                  rotate: 360,
+                }}
+                transition={{
+                  duration: 2,
+                  ease: "linear",
+                  repeat: Infinity,
+                }}
+              >
+                <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full"></div>
+              </motion.div>
+              <motion.h2
+                className="text-2xl font-semibold text-gray-700"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                Loading...
+              </motion.h2>
+              <motion.p
+                className="text-gray-500 mt-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+              >
+                Preparing your experience
+              </motion.p>
+            </div>
+          </div>
+        );
+      }
+    }
+
   return (
     <div className="bg-yellow-50 min-h-screen pt-40">
       {/* Hero Section */}
@@ -50,89 +174,217 @@ const ContactUsPage = () => {
             <h2 className="text-2xl font-bold text-orange-800 mb-6">
               Send Us a Message
             </h2>
-            <form className="space-y-4">
+
+            <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
+                <label htmlFor="full_name" className="block text-sm font-medium text-gray-700 mb-1">
                   Full Name
                 </label>
                 <input
                   type="text"
-                  id="name"
+                  id="full_name"
+                  name="full_name"
+                  value={formData.full_name}
+                  onChange={handleInputChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
-                  placeholder="Your name"
+                  required
                 />
               </div>
+
               <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                   Email
                 </label>
                 <input
                   type="email"
                   id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
-                  placeholder="Your email"
+                  required
                 />
               </div>
+
               <div>
-                <label
-                  htmlFor="phone"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
+                <label htmlFor="phone_number" className="block text-sm font-medium text-gray-700 mb-1">
                   Phone
                 </label>
                 <input
                   type="tel"
-                  id="phone"
+                  id="phone_number"
+                  name="phone_number"
+                  value={formData.phone_number}
+                  onChange={handleInputChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
-                  placeholder="Your phone number"
                 />
               </div>
+
               <div>
-                <label
-                  htmlFor="subject"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
+                <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
                   Subject
                 </label>
                 <select
                   id="subject"
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleInputChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
+                  required
                 >
                   <option value="">Select a subject</option>
-                  <option value="booking">Booking Inquiry</option>
-                  <option value="general">General Question</option>
-                  <option value="group">Group Booking</option>
-                  <option value="other">Other</option>
+                  <option>Booking Inquiry</option>
+                  <option>General Question</option>
+                  <option>Group Booking</option>
+                  <option>Other</option>
                 </select>
               </div>
+
               <div>
-                <label
-                  htmlFor="message"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
+                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
                   Message
                 </label>
                 <textarea
                   id="message"
+                  name="message"
                   rows="4"
+                  value={formData.message}
+                  onChange={handleInputChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
-                  placeholder="Your message"
+                  required
                 ></textarea>
               </div>
+
               <button
                 type="submit"
-                className="w-full bg-orange-600 hover:bg-orange-700 text-white font-medium py-3 px-4 rounded-md transition-colors"
+                disabled={submitStatus === 'sending'}
+                className={`w-full bg-orange-600 hover:bg-orange-700 text-white font-medium py-3 px-4 rounded-md transition-colors disabled:opacity-50 ${submitStatus === "submitting"
+                    ? "opacity-70 cursor-not-allowed"
+                    : ""
+                  }`}
               >
-                Send Message
+                {submitStatus === 'sending' ? <span className="flex items-center justify-center">
+                  <svg
+                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Processing...
+                </span> : ('Send Message')}
               </button>
             </form>
+            <div className="mt-4">
+              {submitStatus === "sending" && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center p-4 bg-blue-50 rounded-md"
+                >
+                  <svg
+                    className="w-5 h-5 text-blue-500 mr-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    ></path>
+                  </svg>
+                  <span className="text-blue-700">Sending your message...</span>
+                </motion.div>
+              )}
+              {submitStatus === "success" && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center p-4 bg-green-50 rounded-md"
+                >
+                  <svg
+                    className="w-5 h-5 text-green-500 mr-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  <div>
+                    <p className="font-medium text-green-700">
+                      Thank you for your message!
+                    </p>
+                    <p className="text-sm text-green-600 mt-1">
+                      We've received your message and will contact you shortly.
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+
+              {submitStatus === "error" && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 bg-red-50 rounded-md"
+                >
+                  <div className="flex items-start">
+                    <svg
+                      className="w-5 h-5 text-red-500 mr-3 mt-0.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      ></path>
+                    </svg>
+                    <div>
+                      <p className="font-medium text-red-700">
+                        There was an error sending your message
+                      </p>
+                      <p className="text-sm text-red-600 mt-1">
+                        {submitError || "Please try again later."}
+                      </p>
+                      <button
+                        onClick={() => setSubmitStatus(null)}
+                        className="mt-2 text-sm font-medium text-red-600 hover:text-red-700 focus:outline-none"
+                      >
+                        Try again →
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </div>
           </motion.div>
+
+
 
           {/* Contact Info */}
           <motion.div
@@ -153,8 +405,15 @@ const ContactUsPage = () => {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800">Phone</h3>
-                  <p className="text-gray-600">+91 79727 09407</p>
-                  <p className="text-gray-600">+91 82610 79943</p>
+                  {contactInfo.tel_number && (
+                    <p className="text-gray-600">{contactInfo.tel_number}</p>
+                  )}
+                  {contactInfo.mobile_number1 && (
+                    <p className="text-gray-600">{contactInfo.mobile_number1}</p>
+                  )}
+                  {contactInfo.mobile_number2 && (
+                    <p className="text-gray-600">{contactInfo.mobile_number2}</p>
+                  )}
                 </div>
               </div>
 
@@ -164,8 +423,12 @@ const ContactUsPage = () => {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800">Email</h3>
-                  <p className="text-gray-600">info@leelafarmhouse.com</p>
-                  <p className="text-gray-600">bookings@leelafarmhouse.com</p>
+                  {contactInfo.email1 && (
+                    <p className="text-gray-600">{contactInfo.email1}</p>
+                  )}
+                  {contactInfo.email2 && (
+                    <p className="text-gray-600">{contactInfo.email2}</p>
+                  )}
                 </div>
               </div>
 
@@ -174,11 +437,22 @@ const ContactUsPage = () => {
                   <FaMapMarkerAlt className="text-orange-600 text-xl" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-800">
-                    Address
-                  </h3>
-                  <p className="text-gray-600">Leela Farmhouse, Near Pune</p>
-                  <p className="text-gray-600">Maharashtra, India</p>
+                  <h3 className="text-lg font-semibold text-gray-800">Address</h3>
+                  {contactInfo.address_line1 && (
+                    <p className="text-gray-600">{contactInfo.address_line1}</p>
+                  )}
+                  {contactInfo.address_line2 && (
+                    <p className="text-gray-600">{contactInfo.address_line2}</p>
+                  )}
+                  {contactInfo.address_line3 && (
+                    <p className="text-gray-600">{contactInfo.address_line3}</p>
+                  )}
+                  {contactInfo.address_line4 && (
+                    <p className="text-gray-600">{contactInfo.address_line4}</p>
+                  )}
+                  {contactInfo.address_line5 && (
+                    <p className="text-gray-600">{contactInfo.address_line5}</p>
+                  )}
                 </div>
               </div>
 
@@ -187,30 +461,36 @@ const ContactUsPage = () => {
                   Connect With Us
                 </h3>
                 <div className="flex gap-4">
-                  <a
-                    href="https://wa.me/917972709407"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-orange-100 hover:bg-orange-200 p-3 rounded-full transition-colors"
-                  >
-                    <FaWhatsapp className="text-orange-600 text-xl" />
-                  </a>
-                  <a
-                    href="https://facebook.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-orange-100 hover:bg-orange-200 p-3 rounded-full transition-colors"
-                  >
-                    <FaFacebook className="text-orange-600 text-xl" />
-                  </a>
-                  <a
-                    href="https://instagram.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-orange-100 hover:bg-orange-200 p-3 rounded-full transition-colors"
-                  >
-                    <FaInstagram className="text-orange-600 text-xl" />
-                  </a>
+                  {contactInfo.whatsapp_number && (
+                    <a
+                      href={contactInfo.social_link_5}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-orange-100 hover:bg-orange-200 p-3 rounded-full transition-colors"
+                    >
+                      <FaWhatsapp className="text-orange-600 text-xl" />
+                    </a>
+                  )}
+                  {contactInfo.social_link_1 && (
+                    <a
+                      href={contactInfo.social_link_1}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-orange-100 hover:bg-orange-200 p-3 rounded-full transition-colors"
+                    >
+                      <FaFacebook className="text-orange-600 text-xl" />
+                    </a>
+                  )}
+                  {contactInfo.social_link_4 && (
+                    <a
+                      href={contactInfo.social_link_4}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-orange-100 hover:bg-orange-200 p-3 rounded-full transition-colors"
+                    >
+                      <FaInstagram className="text-orange-600 text-xl" />
+                    </a>
+                  )}
                 </div>
               </div>
             </div>
