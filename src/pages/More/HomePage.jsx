@@ -1,10 +1,11 @@
 import React from "react";
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaSwimmingPool, FaHiking, FaUtensils, FaTree } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import axiosInstance from "../../services/api";
+import { property_14 } from "../../assets";
 
 const HomePage = () => {
   const [services, setServices] = useState(null);
@@ -27,42 +28,42 @@ const HomePage = () => {
   }, []);
 
   if (loading) {
-        return (
-          <div className="h-[600px] md:h-[700px] flex items-center justify-center bg-gray-100">
-            <div className="text-center">
-              <motion.div
-                className="flex justify-center mb-6"
-                animate={{
-                  rotate: 360,
-                }}
-                transition={{
-                  duration: 2,
-                  ease: "linear",
-                  repeat: Infinity,
-                }}
-              >
-                <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full"></div>
-              </motion.div>
-              <motion.h2
-                className="text-2xl font-semibold text-gray-700"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5 }}
-              >
-                Loading...
-              </motion.h2>
-              <motion.p
-                className="text-gray-500 mt-2"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2, duration: 0.5 }}
-              >
-                Preparing your experience
-              </motion.p>
-            </div>
-          </div>
-        );
-    }
+    return (
+      <div className="h-[600px] md:h-[700px] flex items-center justify-center bg-gray-100">
+        <div className="text-center">
+          <motion.div
+            className="flex justify-center mb-6"
+            animate={{
+              rotate: 360,
+            }}
+            transition={{
+              duration: 2,
+              ease: "linear",
+              repeat: Infinity,
+            }}
+          >
+            <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full"></div>
+          </motion.div>
+          <motion.h2
+            className="text-2xl font-semibold text-gray-700"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            Loading...
+          </motion.h2>
+          <motion.p
+            className="text-gray-500 mt-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+          >
+            Preparing your experience
+          </motion.p>
+        </div>
+      </div>
+    );
+  }
 
   if (error) {
     return (
@@ -280,7 +281,7 @@ const HomePage = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-[url('https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80')] bg-cover bg-center">
+      <section className="py-16 bg-cover bg-center" style={{ backgroundImage: `url(${property_14})` }}>
         <div className="max-w-6xl mx-auto px-4 text-center">
           <motion.div
             className="bg-white bg-opacity-90 p-8 rounded-lg shadow-lg inline-block"
