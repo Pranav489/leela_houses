@@ -9,6 +9,7 @@ import {
   FaFacebook,
   FaInstagram,
 } from "react-icons/fa";
+import SEO from "../../components/SEO";
 
 const ContactUsPage = () => {
   const [contactInfo, setContactInfo] = useState({
@@ -136,6 +137,11 @@ const ContactUsPage = () => {
 
   return (
     <div className="bg-yellow-50 min-h-screen pt-40">
+      <SEO
+  title="Contact Us | Book Your Stay at Leela Farmhouse"
+  description="Plan your getaway today! Contact Leela Farmhouse farmhouse resort for bookings, events, or inquiries. Escape to nature with comfort and style."
+/>
+
       {/* Hero Section */}
       <div className="relative h-96 bg-[url('https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80')] bg-cover bg-center">
         <div className="absolute inset-0 bg-orange-800 bg-opacity-60 flex items-center justify-center">
@@ -502,7 +508,7 @@ const ContactUsPage = () => {
               </h3>
               <div className="aspect-w-16 aspect-h-9">
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3784.441676553995!2d73.91486531536798!3d18.4528609874539!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2ea950f616219%3A0x321bdae2cea9f064!2sPune%2C%20Maharashtra!5e0!3m2!1sen!2sin!4v1624457356787!5m2!1sen!2sin"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3785.8119916544683!2d73.7477253!3d18.4014059!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2974047cfe62b%3A0xd946545645c94669!2sThe%20Leela%20Family%20Farm%20House%20Resort%20-%20Best%20Holiday%20stay%20near%20Pune%20with%20Swimming%20Pool!5e0!3m2!1sen!2sin!4v1755673324420!5m2!1sen!2sin"
                   width="100%"
                   height="300"
                   style={{ border: 0 }}

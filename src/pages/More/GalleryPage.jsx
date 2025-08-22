@@ -18,6 +18,7 @@ import {
   FaUtensils,
   FaHiking,
 } from "react-icons/fa";
+import SEO from "../../components/SEO";
 
 const GalleryPage = () => {
   const [viewMode, setViewMode] = useState("grid"); // 'grid', 'masonry', 'carousel'
@@ -156,6 +157,11 @@ const GalleryPage = () => {
 
   return (
     <div className="min-h-screen bg-yellow-50 py-12 px-4 sm:px-6 lg:px-8">
+
+      <SEO
+  title="Resort Gallery | Explore Leela Farmhouse Resort"
+  description="Take a visual tour of Leela Farmhouse. Explore our farmhouse resort gallery featuring luxury rooms, nature views, organic dining, wedding venues, and guest experiences."
+/>
       {/* Gallery Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}

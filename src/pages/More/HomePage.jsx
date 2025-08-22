@@ -6,6 +6,7 @@ import { FaSwimmingPool, FaHiking, FaUtensils, FaTree } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import axiosInstance from "../../services/api";
 import { property_14 } from "../../assets";
+import SEO from "../../components/SEO";
 
 const HomePage = () => {
   const [services, setServices] = useState(null);
@@ -79,6 +80,10 @@ const HomePage = () => {
 
   return (
     <div className="bg-yellow-50">
+      <SEO
+  title="Resort Services & Amenities | Leela Farmhouse Retreat"
+  description="Leela Farmhouse offers premium resort services including luxury rooms, organic dining, event hosting, outdoor activities, and personalized hospitality for a relaxing stay."
+/>
       {/* Hero Section */}
       <section className="relative h-screen bg-[url('https://images.unsplash.com/photo-1564501049412-61c2a3083791?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80')] bg-cover bg-center">
         <div className="absolute inset-0 bg-orange-800 bg-opacity-50 flex items-center justify-center">

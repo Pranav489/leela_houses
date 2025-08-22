@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { FaSwimmingPool, FaHiking, FaUtensils, FaTree } from "react-icons/fa";
 import axiosInstance from '../../services/api';
+import SEO from "../../components/SEO";
 const AboutUsPage = () => {
   const [aboutData, setAboutData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -80,6 +81,10 @@ const AboutUsPage = () => {
 
   return (
     <div className="bg-yellow-50 pt-40 min-h-screen">
+      <SEO
+        title = "About Us | Leela Farmhouse Resort"
+        description="Discover the story of Leela Farmhouse, a premium farmhouse resort blending nature, comfort, and tradition. Learn more about our vision for relaxation and luxury."
+        />
       {/* Hero Section */}
       <div className="relative h-96  bg-cover bg-center">
         <div className="absolute inset-0 bg-orange-800 bg-opacity-60 flex items-center justify-center">

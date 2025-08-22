@@ -12,6 +12,7 @@ import {
 } from "react-icons/fa";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import axiosInstance from "../../services/api"; // Adjust path as needed
+import SEO from "../../components/SEO";
 
 const BlogDetailsPage = () => {
   const { slug } = useParams();
@@ -128,6 +129,7 @@ const BlogDetailsPage = () => {
 
   return (
     <div className="bg-yellow-50 min-h-screen pt-40">
+      <SEO/>
       {/* Hero Section */}
       <div
         className="relative h-64 bg-cover bg-center"
