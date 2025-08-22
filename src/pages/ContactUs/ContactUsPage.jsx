@@ -9,7 +9,6 @@ import {
   FaFacebook,
   FaInstagram,
 } from "react-icons/fa";
-import SEO from "../../components/SEO";
 
 const ContactUsPage = () => {
   const [contactInfo, setContactInfo] = useState({
@@ -137,10 +136,6 @@ const ContactUsPage = () => {
 
   return (
     <div className="bg-yellow-50 min-h-screen pt-40">
-      <SEO
-  title="Contact Us | Book Your Stay at Leela Farmhouse"
-  description="Plan your getaway today! Contact Leela Farmhouse farmhouse resort for bookings, events, or inquiries. Escape to nature with comfort and style."
-/>
 
       {/* Hero Section */}
       <div className="relative h-96 bg-[url('https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80')] bg-cover bg-center">

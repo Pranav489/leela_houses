@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { FaCalendarAlt, FaUser, FaArrowRight } from "react-icons/fa";
 import axiosInstance from "../../services/api"; // Adjust the path as needed
-import SEO from "../../components/SEO";
 
 const BlogPage = () => {
   const [blogPosts, setBlogPosts] = useState([]);
@@ -105,10 +104,6 @@ const BlogPage = () => {
 
   return (
     <div className="bg-yellow-50 min-h-screen pt-30">
-      <SEO
-  title="Resort Blog & Travel Inspiration | Leela Farmhouse"
-  description="Explore the Leela Farmhouse blog for travel tips, farmhouse lifestyle guides, resort news, and stories about nature, wellness, and celebrations."
-/>
       {/* Hero Section */}
       <div className="relative h-96 bg-[url('https://images.unsplash.com/photo-1497864149936-d3163f0c0f4b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80')] bg-cover bg-center">
         <div className="absolute inset-0 bg-orange-800 bg-opacity-60 flex items-center justify-center">
